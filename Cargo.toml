@@ -1,8 +1,12 @@
 [package]
 name = "product-ui"
 version = "0.1.0"
-edition = "2021"
+edition = { workspace = true }
+rust-version = { workspace = true }
+
+[workspace.package]
 rust-version = "1.77"
+edition = "2021"
 
 [dependencies]
 yew = { version = "0.21", features = ["csr"] }
@@ -19,12 +23,18 @@ tracing-wasm = "0.2"
 tracing = "0.1"
 reqwest = { version = "0.12", features = ["json"] }
 gloo-utils = "0.2"
+app_interface = { path = "interface" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 
 [workspace]
-members = [ "infrastructure/auth_server", "infrastructure/file_storage","src-tauri"]
+members = [
+    "infrastructure/auth_server",
+    "infrastructure/file_storage",
+    "interface",
+    "src-tauri",
+]
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
