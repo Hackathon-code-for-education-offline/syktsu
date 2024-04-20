@@ -1,8 +1,77 @@
 @import "bootstrap";
 
+
+@font-face {
+    font-family: 'HeaderSymbols';
+    src: url('public/fonts/HeaderSymbols.eot');
+    src: url('public/fonts/HeaderSymbols.eot?#iefix') format('embedded-opentype'),
+         url('public/fonts/HeaderSymbols.woff') format('woff'),
+         url('public/fonts/HeaderSymbols.ttf') format('truetype'),
+         url('public/fonts/HeaderSymbols.svg#HeaderSymbols') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'PPRightGrotesk-SpatialBlack';
+    src: url('public/fonts/PPRightGrotesk-SpatialBlack.eot');
+    src: url('public/fonts/PPRightGrotesk-SpatialBlack.eot?#iefix') format('embedded-opentype'),
+         url('public/fonts/PPRightGrotesk-SpatialBlack.woff') format('woff'),
+         url('public/fonts/PPRightGrotesk-SpatialBlack.ttf') format('truetype'),
+         url('public/fonts/PPRightGrotesk-SpatialBlack.svg#PPRightGrotesk-SpatialBlack') format('svg'),
+         url('public/fonts/PPRightGrotesk-SpatialBlack.otf') format('otf');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'OnestMedium';
+    src: url('public/fonts/Onest.eot');
+    src: url('public/fonts/Onest.eot?#iefix') format('embedded-opentype'),
+         url('public/fonts/Onest.otf') format('otf'),
+         url('public/fonts/Onest.svg#Onest') format('svg'),
+         url('public/fonts/Onest.woff') format('woff'),
+         url('public/fonts/Onest.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'OnestRegular';
+    src: url('public/fonts/Onest.eot');
+    src: url('public/fonts/Onest.eot?#iefix') format('embedded-opentype'),
+         url('public/fonts/Onest.otf') format('otf'),
+         url('public/fonts/Onest.svg#Onest') format('svg'),
+         url('public/fonts/Onest.woff') format('woff'),
+         url('public/fonts/Onest.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
+
 :root {
     font-size: 16px;
-    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'OnestRegular', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+[class*='icon-']:before{
+	display: inline-block;
+   font-family: 'HeaderSymbols';
+   font-style: normal;
+   font-weight: normal;
+   line-height: 1;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale
+}
+.icon-logo:before{content:'\0041';}
+.icon-menu:before{content:'\0042';}
+
+* {
+    box-sizing: border-box;
+    background: 0;
+    border: none;
+    appearance: none;
+    margin: 0;
+    padding: 0;
 }
 
 h1,
@@ -21,6 +90,13 @@ h3,
 .text-size-h3 {
     font-size: 2rem;
     font-weight: 900;
+}
+
+h1, h2, h3,
+.text-size-h1,
+.text-size-h2,
+.text-size-h3 {
+    font-family: 'PPRightGrotesk-SpatialBlack', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 .text-size-m40 {
@@ -48,6 +124,14 @@ h3,
     font-weight: 500;
 }
 
+.text-size-m16,
+.text-size-m18,
+.text-size-m20,
+.text-size-m24,
+.text-size-m40 {
+    font-family: 'OnestMedium', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
 .text-size-r40 {
     font-size: 2.5rem;
     font-weight: 400;
@@ -73,6 +157,14 @@ h3,
     font-weight: 400;
 }
 
+.text-size-r16,
+.text-size-r18,
+.text-size-r20,
+.text-size-r24,
+.text-size-r40 {
+    font-family: 'OnestRegular', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
 p, a {
     font-size: 1rem;
 }
@@ -87,10 +179,62 @@ small,
     font-weight: 500;
 }
 
-.header {
+#panorama {
+    width: 60vw;
+    height: 50vh;
+}
+
+.button {
+    border-radius: 0.75rem;
+    padding-inline: 1.25rem;
+    grid-auto-flow: column;
+    column-gap: 0.75rem;
+    @extend %pointer;
+    @extend %display_grid;
+    @extend %align_content_center;
+}
+
+.button.base {
+    background: $primary-color;
+}
+
+.button.accent {
+    background: $accent-color;
+}
+
+html, body {
+    grid-template-rows: 4rem 1fr;
+    @extend %display_grid;
+}
+
+header {
+    grid-auto-flow: column;
+    grid-template-columns: repeat(2, min-content) 1fr repeat(2, min-content);
+    column-gap: 2rem;
+    padding-inline: 1.5rem;
+    padding-block: 0.5rem;
+    background: $base-color;
+    @extend %align_content_center;
+    @extend %display_grid;
+}
+
+.header__logo {
+    font-size: 5rem;
+    height: 4rem;
+    @extend %align_items_center;
+    @extend %display_grid;
+}
+
+nav {
+    grid-auto-flow: column;
+    column-gap: 1.5rem;
     @extend %display_grid;
 }
 
 .footer {
+    @extend %display_grid;
+}
+
+.login__form {
     @extend %display_grid;
 }
