@@ -44,11 +44,18 @@ pub(crate) fn app() -> Html {
             let mut payload = HashMap::new();
             payload.insert("session", "rust");
 
-            let api_url = window()
-                .location()
-                .origin()
-                .map(|o| format!("{o}/{API_PATH}"))
-                .map_err(|e| UiError::from(e))?;
+            let location = window().location();
+
+            let protocol = location.protocol().map_err(|e| UiError::from(e))?;
+            let hostname = location.hostname().map_err(|e| UiError::from(e))?;
+
+            let api_url = format!("{protocol}://{hostname}:4444");
+
+            // let api_url = window()
+            //     .location()
+            //     .origin()
+            //     .map(|o| format!("{o}/{API_PATH}"))
+            //     .map_err(|e| UiError::from(e))?;
 
             let res_body = client
                 .post(api_url)
