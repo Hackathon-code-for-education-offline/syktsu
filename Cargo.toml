@@ -22,7 +22,7 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 
 [workspace]
-members = ["src-tauri"]
+members = [ "infrastructure/auth_server", "infrastructure/file_storage","src-tauri"]
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
