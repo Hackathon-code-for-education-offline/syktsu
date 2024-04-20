@@ -33,8 +33,7 @@ cargo install trunk
 </details>
 </details>
 
-<details>
-<summary>Компиляция</summary>
+### Компиляция
 
 <details>
 <summary>Для Windows</summary>
@@ -53,5 +52,4 @@ trunk serve
 cargo tauri dev
 ```
 
-</details>
 </details>
