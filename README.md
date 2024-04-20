@@ -3,7 +3,7 @@
 ### Требования
 
 <details>
-<summary>#### Установка необходимых зависимостей для компиляции</summary>
+#### <summary>Установка необходимых зависимостей для компиляции</summary>
 
 <details>
 <summary>Для Windows</summary>
@@ -34,7 +34,7 @@ cargo install trunk
 </details>
 
 <details>
-<summary>>####Компиляция</summary>
+#### <summary>Компиляция</summary>
 
 <details>
 <summary>Для Windows</summary>
