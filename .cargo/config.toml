@@ -1,0 +1,2 @@
+[env]
+TAURI_ANDROID_PACKAGE_PREFIX = "com_campus"
