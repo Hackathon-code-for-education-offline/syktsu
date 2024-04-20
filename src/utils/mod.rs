@@ -1,5 +1,16 @@
 use js_sys::Object;
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+
+#[derive(Serialize, Deserialize, Default)]
+pub struct PannellumOptions {
+    #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub _type: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub panorama: Option<String>,
+}
 
 #[wasm_bindgen]
 extern "C" {
@@ -20,6 +31,11 @@ extern "C" {
 
     #[wasm_bindgen(method, structural, getter = panellum, catch)]
     pub fn pannellum(this: &WasmWindow) -> Result<Pannellum, JsValue>;
+
+    #[wasm_bindgen(catch)]
+    pub fn viewer() -> Result<(), JsValue>;
+    // #[wasm_bindgen(method, structural, js_name = viewer, catch)]
+    // pub fn viewer(this: &Pannellum, options: JsValue) -> Result<(), JsValue>;
 
     #[wasm_bindgen(method, structural, catch)]
     pub async fn invoke(
