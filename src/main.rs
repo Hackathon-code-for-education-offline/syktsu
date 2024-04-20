@@ -1,6 +1,7 @@
-pub mod utils;
-pub mod shared;
+pub mod components;
 pub mod pages;
+pub mod shared;
+pub mod utils;
 
 mod app;
 
