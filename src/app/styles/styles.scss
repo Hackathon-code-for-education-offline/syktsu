@@ -1,3 +1,96 @@
+@import "bootstrap";
+
 :root {
     font-size: 16px;
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+h1,
+.text-size-h1 {
+    font-size: 4rem;
+    font-weight: 900;
+}
+
+h2,
+.text-size-h2 {
+    font-size: 3rem;
+    font-weight: 900;
+}
+
+h3,
+.text-size-h3 {
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+.text-size-m40 {
+    font-size: 2.5rem;
+    font-weight: 500;
+}
+
+.text-size-m24 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.text-size-m20 {
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.text-size-m18 {
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+.text-size-m16 {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.text-size-r40 {
+    font-size: 2.5rem;
+    font-weight: 400;
+}
+
+.text-size-r24 {
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+.text-size-r20 {
+    font-size: 1.25rem;
+    font-weight: 400;
+}
+
+.text-size-r18 {
+    font-size: 1.125rem;
+    font-weight: 400;
+}
+
+.text-size-r16 {
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+p, a {
+    font-size: 1rem;
+}
+
+a {
+    color: $accent-color;
+}
+
+small,
+.text-size-small {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.header {
+    @extend %display_grid;
+}
+
+.footer {
+    @extend %display_grid;
 }
