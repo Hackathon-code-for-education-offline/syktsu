@@ -35,8 +35,6 @@ pub enum Route {
 
 #[function_component(App)]
 pub(crate) fn app() -> Html {
-    tracing_wasm::set_as_global_default();
-
     let session = use_local_storage::<String>(LOCAL_SESSION.to_string());
 
     let is_auth: UseAsyncHandle<Response, UiError> = use_async_with_options(
