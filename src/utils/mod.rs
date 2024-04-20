@@ -1,15 +1,16 @@
 use js_sys::Object;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+use yew::AttrValue;
 
 #[derive(Serialize, Deserialize, Default)]
-pub struct PannellumOptions {
+pub struct PannellumOptions<'a> {
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub _type: Option<String>,
+    pub _type: Option<&'a str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub panorama: Option<String>,
+    pub panorama: Option<&'a str>,
 }
 
 #[wasm_bindgen]
@@ -29,13 +30,11 @@ extern "C" {
     #[wasm_bindgen(method, structural, getter = __TAURI_INTERNALS__, catch)]
     pub fn tauri_internals(this: &WasmWindow) -> Result<TauriInternals, JsValue>;
 
-    #[wasm_bindgen(method, structural, getter = panellum, catch)]
+    #[wasm_bindgen(method, structural, getter = pannellum, catch)]
     pub fn pannellum(this: &WasmWindow) -> Result<Pannellum, JsValue>;
 
-    #[wasm_bindgen(catch)]
-    pub fn viewer() -> Result<(), JsValue>;
-    // #[wasm_bindgen(method, structural, js_name = viewer, catch)]
-    // pub fn viewer(this: &Pannellum, options: JsValue) -> Result<(), JsValue>;
+    #[wasm_bindgen(method, structural, js_name = viewer, catch)]
+    pub fn viewer(this: &Pannellum, id: &str, options: JsValue) -> Result<(), JsValue>;
 
     #[wasm_bindgen(method, structural, catch)]
     pub async fn invoke(
