@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <title>Campus</title>
+        <base data-trunk-public-url />
 
         <link
             data-trunk
@@ -28,8 +29,16 @@
 
         <script
             type="text/javascript"
-            src="public/pannellum/pannellum.js"
+            src="/public/pannellum/pannellum.js"
         ></script>
+        <script>
+            function viewer() {
+                pannellum.viewer('panorama', {
+                    type: 'equirectangular',
+                    panorama: 'https://pannellum.org/images/alma.jpg',
+                });
+            }
+        </script>
     </head>
     <body></body>
 </html>
