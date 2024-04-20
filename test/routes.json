@@ -1,0 +1,5 @@
+{
+    "/api/profile": "/",
+    "/api/profile/:id": "/$1",
+    "/api/university/:id": "/$1"
+}
