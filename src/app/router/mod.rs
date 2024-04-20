@@ -1,9 +1,19 @@
-use crate::pages::{
-    home::Home,
-    profile::{MyProfile, Profile},
-    university::{Universities, University},
+use std::collections::HashMap;
+
+use crate::{
+    app::config::{api::API_PATH, db_keys::LOCAL_SESSION},
+    components::header::Header,
+    pages::{
+        home::Home,
+        profile::{MyProfile, Profile},
+        university::{Universities, University},
+    },
+    shared::{error::UiError, response::Response},
 };
+use gloo_utils::window;
+use reqwest::header::CONTENT_TYPE;
 use yew::prelude::*;
+use yew_hooks::{use_async_with_options, use_local_storage, UseAsyncHandle, UseAsyncOptions};
 use yew_router::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Routable)]
@@ -25,9 +35,62 @@ pub enum Route {
 
 #[function_component(App)]
 pub(crate) fn app() -> Html {
-    // use crate::utils::WINDOW;
-
     tracing_wasm::set_as_global_default();
+
+    let session = use_local_storage::<String>(LOCAL_SESSION.to_string());
+
+    let is_auth: UseAsyncHandle<Response, UiError> = use_async_with_options(
+        async move {
+            let client = reqwest::Client::new();
+
+            let mut payload = HashMap::new();
+            payload.insert("session", "rust");
+
+            let api_url = window()
+                .location()
+                .origin()
+                .map(|o| format!("{o}/{API_PATH}"))
+                .map_err(|e| UiError::from(e))?;
+
+            let res_body = client
+                .post(api_url)
+                .header(CONTENT_TYPE, "application/json")
+                .json(&payload)
+                .send()
+                .await
+                .map_err(|e| UiError::from(e))?
+                .json::<Response>()
+                .await
+                .map_err(|e| UiError::from(e))?;
+
+            Ok(res_body)
+        },
+        UseAsyncOptions::enable_auto(),
+    );
+
+    // fallback
+    if is_auth.loading {
+        return html!();
+    };
+
+    if let Some(data) = is_auth.data.clone() {
+        let is_auth = true;
+
+        return html! {
+            <BrowserRouter>
+                <Header {is_auth} />
+
+                <main>
+                    <Switch<Route> render={switch} />
+                </main>
+            </BrowserRouter>
+        };
+    }
+
+    if let Some(error) = is_auth.error.clone() {
+        tracing::error!("{error}");
+    }
+    // use crate::utils::WINDOW;
 
     // if let Ok(tauri_internals) = WINDOW.tauri_internals().map_err(|e| tracing::warn!("{:?}", e)) {
     //     // spawn_local(async move {
@@ -35,11 +98,7 @@ pub(crate) fn app() -> Html {
     //     // });
     // };
 
-    html! {
-        <BrowserRouter>
-            <Switch<Route> render={switch} />
-        </BrowserRouter>
-    }
+    html!()
 }
 
 fn switch(routes: Route) -> Html {
