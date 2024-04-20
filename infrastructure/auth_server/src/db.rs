@@ -1,5 +1,4 @@
-use sqlx::*;
-use sqlx::mysql::*;
+use sqlx::{mysql::MySqlPoolOptions, query, MySql, Pool};
 
 const DB_NAME: &str = "test_db";
 const DB_USER: &str = "test_user";
