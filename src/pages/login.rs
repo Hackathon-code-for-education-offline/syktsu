@@ -54,23 +54,14 @@ pub fn login() -> Html {
                     .map_err(|e| tracing::error!("{}", UiError::from(e)))
                     .unwrap_or_default();
 
-                let api_url = format!("{protocol}//192.168.17.129:8000/university/display");
+                let api_url = format!("{protocol}//{hostname}:{API_PORT}/{API_UNIVERSITY_PATH}");
 
                 let _ = client
                     .get(api_url)
                     .header(CONTENT_TYPE, "application/json")
-                    // .json(&req)
                     .send()
                     .await
                     .map_err(|e| tracing::error!("{}", UiError::from(e)));
-
-                // let _ = client
-                //     .post(api_url)
-                //     .header(CONTENT_TYPE, "application/json")
-                //     .json(&req)
-                //     .send()
-                //     .await
-                //     .map_err(|e| tracing::error!("{}", UiError::from(e)));
             })
         })
     };

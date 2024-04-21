@@ -21,25 +21,14 @@ pub enum Code {
     InternalServerError,
 }
 
-<<<<<<< HEAD
+#[cfg(feature = "backend")]
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct LoginRequest<'a> {
-    pub username: Cow<'a, str>,
-    pub password: Cow<'a, str>,
-=======
-// #[derive(Clone, Debug, Serialize, Deserialize, FromForm)]
-// pub struct LoginRequest<'a> {
-//     pub username: Cow<'a, str>,
-//     pub password: Cow<'a, str>,
-// }
-
-#[derive(Clone, Debug, Serialize, Deserialize, FromForm)]
 pub struct LoginRequest {
     pub username: String,
     pub password: String,
->>>>>>> 54342620ba13a0bebbadfba74003940ab677b8b2
 }
 
+#[cfg(feature = "backend")]
 #[derive(Debug)]
 pub enum Error {
     TooLarge,
@@ -118,14 +107,10 @@ impl<'r> FromData<'r> for LoginRequest {
             None => return Outcome::Error((Status::UnprocessableEntity, NoColon)),
         };
 
-<<<<<<< HEAD
         Outcome::Success(LoginRequest {
-            username: Cow::Owned(format!("{}", username)),
-            password: Cow::Owned(format!("{}", password)),
+            username: format!("{}", username),
+            password: format!("{}", password),
         })
-=======
-        Outcome::Success(LoginRequest { username: format!("{}", username), password: format!("{}", password) })
->>>>>>> 54342620ba13a0bebbadfba74003940ab677b8b2
     }
 }
 
