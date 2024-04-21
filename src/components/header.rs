@@ -33,11 +33,15 @@ pub fn header(props: &HeaderProps) -> Html {
             <input type={"checkbox"} ref={shadow_toggle} class={classes!("shadow-toggle")} id={"header-toggle"} />
             <span class={classes!("header__logo", "icon-logo")}></span>
 
-            <Button with_icon={"icon-menu"} value={"Все вузы"} onclick={toggle_menu} />
-            <Input placeholder={"Поиск"} />
+            <nav>
+                <Button with_icon={"icon-menu"} value={"Все вузы"} onclick={toggle_menu} />
+                <Input placeholder={"Поиск"} />
+            </nav>
 
-            <Button value={"Стать партнёром"} onclick={props.to_login_page.clone()} />
-            <Button value={"Войти"} is_accent=true onclick={props.to_login_page.clone()} />
+            <div class={classes!("header__login-buttons")}>
+                <Button value={"Стать партнёром"} onclick={props.to_login_page.clone()} />
+                <Button value={"Войти"} is_accent=true onclick={props.to_login_page.clone()} />
+            </div>
         </header>
     }
 }

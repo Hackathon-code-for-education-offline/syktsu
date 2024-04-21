@@ -38,6 +38,17 @@ pub fn universities() -> Html {
     }
 }
 
+#[function_component(UniversitySettings)]
+pub fn university_settings(props: &UniversityProps) -> Html {
+    let UniversityProps { id } = props;
+
+    html! {
+        <>
+            <h3>{"Настройки"}</h3>
+        </>
+    }
+}
+
 #[function_component(UniversityMap)]
 pub fn university_map(props: &UniversityProps) -> Html {
     let UniversityProps { id } = props;

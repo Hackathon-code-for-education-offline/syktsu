@@ -51,7 +51,8 @@
 :root {
     font-size: 16px;
     font-family: 'OnestRegular', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
+    color: $text-color;
+}   
 
 [class*='icon-']:before{
    font-family: 'CustomSymbols';
@@ -92,6 +93,32 @@
     appearance: none;
     margin: 0;
     padding: 0;
+}
+
+main {
+    padding-top: 2rem;
+    row-gap: 4rem;
+    grid-auto-flow: row;
+    @extend %display_grid;
+}
+
+.home__title {
+    text-align: center;
+    row-gap: 1rem;
+    @extend %justify_items_center;
+    @extend %display_grid;
+}
+
+.home__title__prim {
+    max-width: 62rem;
+}
+
+.home__title__sub {
+    max-width: 36rem;
+}
+
+.home__title p {
+    opacity: .7;
 }
 
 h1,
@@ -264,7 +291,7 @@ body {
 
 header {
     grid-auto-flow: column;
-    grid-template-columns: repeat(2, min-content) 1fr repeat(2, min-content);
+    grid-template-columns: min-content 1fr min-content;
     column-gap: 2rem;
     padding-inline: 1.5rem;
     padding-block: 0.5rem;
@@ -282,10 +309,20 @@ header {
     @extend %display_grid;
 }
 
-nav {
+nav,
+.header__login-buttons {
     grid-auto-flow: column;
-    column-gap: 1.5rem;
+    column-gap: 1rem;
     @extend %display_grid;
+}
+
+nav {
+    grid-template-columns: min-content 1fr;
+}
+
+.header__login-buttons {
+    grid-auto-columns: min-content;
+    
 }
 
 .footer {
@@ -357,5 +394,11 @@ nav {
 .login__form__button {
     width: 100%;
     padding: 1rem 1.5rem;
+}
+
+.bread-crumbs {
+    grid-auto-flow: column;
+    column-gap: 1rem;
+    @extend %display_grid;
 }
 

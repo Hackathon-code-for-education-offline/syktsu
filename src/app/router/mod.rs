@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 use crate::{
-    app::config::{api::API_PATH, db_keys::LOCAL_SESSION},
+    app::config::api::API_PATH,
     components::header::Header,
     pages::{
         home::Home,
         login::Login,
         profile::{MyProfile, Profile},
-        university::{Universities, University, UniversityMap},
+        university::{Universities, University, UniversityMap, UniversitySettings},
     },
     shared::{error::UiError, response::Response},
 };
@@ -31,6 +31,8 @@ pub enum Route {
     UniversityRoot,
     #[at("/university/:id")]
     University { id: usize },
+    #[at("/university/:id/settings")]
+    UniversitySettings { id: usize },
     #[at("/university/:id/map")]
     UniversityMap { id: usize },
     #[not_found]
@@ -114,11 +116,16 @@ fn switch(routes: Route) -> Html {
             }
 
             <main class={classes!(if Route::Login == routes {"login"} else {""})}>
+                // if Route::Login != routes {
+                //     <BreadCrumbs values={} />
+                // }
+
                 {
                     match routes {
                         Route::Home => html! { <Home /> },
                         Route::Login => html! { <Login /> },
                         Route::UniversityRoot => html! { <Universities /> },
+                        Route::UniversitySettings { id } => html! { <UniversitySettings {id} /> },
                         Route::University { id } => html! { <University {id} /> },
                         Route::UniversityMap { id } => html! { <UniversityMap {id} /> },
                         Route::ProfileRoot => html! { <MyProfile /> },

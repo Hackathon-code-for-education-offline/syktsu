@@ -1,28 +1,26 @@
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
 mod db;
 mod jwt;
 
+use app_interface::{LoginRequest, Response};
 use db::{UniversityRow, DB};
 use jsonwebtoken::{encode, EncodingKey, Header};
-use rocket::serde::json::Json;
-use serde::{Serialize, Deserialize};
+use rocket::{data::FromData, http::CookieJar, serde::json::Json};
+use serde::{Deserialize, Serialize};
 
 struct State {
     db: DB,
 }
 
-
 impl State {
     pub async fn init() -> Self {
         let db = DB::init().await;
 
-        Self {
-            db,
-        }
+        Self { db }
     }
 }
-
 
 #[launch]
 async fn rocket() -> _ {
@@ -30,28 +28,25 @@ async fn rocket() -> _ {
 
     rocket::build()
         .manage(state)
-        .mount("/", routes![
-            university,
-            university_add,
-            display_all,
-        ])
+        .mount("/", routes![university, university_add, display_all,])
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct Claims {
+struct Claims {}
 
-}
+#[post("/login", format = "application/json", data = "<user>")]
+fn generate_token(cookies: &CookieJar<'_>, user: LoginRequest<'_>) -> Response<()> {
+    // user.get_private
+    // let claims = claims.0;
 
-#[post("/gen_token", data = "<claims>")]
-fn generate_token(claims: Json<Claims>) -> String {
-    let claims = claims.0;
+    "sada".to_string()
 
-    let header = Header::default();
-    let key = EncodingKey::from_secret("secret".as_ref());
-    let token = encode(&header, &claims, &key).unwrap();
+    // let header = Header::default();
+    // let key = EncodingKey::from_secret("secret".as_ref());
+    // let token = encode(&header, &claims, &key).unwrap();
 
-    token
+    // token
 }
 
 #[get("/university/add")]
