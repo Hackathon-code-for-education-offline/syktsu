@@ -4,8 +4,9 @@ mod db;
 mod jwt;
 
 use db::DB;
+use jsonwebtoken::{encode, EncodingKey, Header};
 use rocket::serde::json::Json;
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 struct State {
     
 }
@@ -29,13 +30,24 @@ async fn rocket() -> _ {
         ])
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct TokenInData {
+struct Claims {
 
 }
 
-#[post("/gen_token", data = "<token_data>")]
-fn generate_token(token_data: Json<TokenInData>) {
-    
+#[post("/gen_token", data = "<claims>")]
+fn generate_token(claims: Json<Claims>) -> String {
+    let claims = claims.0;
+
+    let header = Header::default();
+    let key = EncodingKey::from_secret("secret".as_ref());
+    let token = encode(&header, &claims, &key).unwrap();
+
+    token
+}
+
+#[post("/university/<id>")]
+fn university(id: String) -> String {
+    id
 }

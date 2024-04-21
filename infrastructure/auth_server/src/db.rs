@@ -1,10 +1,10 @@
-use sqlx::{mysql::MySqlPoolOptions, query, MySql, MySqlPool, Pool};
+use sqlx::{query, MySql, MySqlPool, Pool};
 
 
 const DB_NAME: &str = "test_db";
+const ROOT_PASS: &str = "example";
 const DB_USER: &str = "test_user";
 const DB_PASS: &str = "test_pass";
-const ROOT_PASS: &str = "example";
 
 pub struct DB {
     pub pool: Pool<MySql>,
@@ -38,43 +38,41 @@ pub struct Tables {
 }
 
 impl Tables {
-    pub async fn init(pool: &Pool<MySql>) {
-        University::create(pool).await;
-        Users::create(pool).await;
-        Roles::create(pool).await;
-        UserRoles::create(pool).await;
-        Reviews::create(pool).await;
-        Comments::create(pool).await;
-        Locations::create(pool).await;
-        Pictures::create(pool).await;
-        
-        // Self { 
-        //     university: (), 
-        //     users: (), 
-        //     roles: (), 
-        //     user_roles: (), 
-        //     reviews: (), 
-        //     comments: (), 
-        //     locations: (), 
-        //     pictures: () 
-        // }
+    pub async fn init(pool: &Pool<MySql>) -> Self {
+        let university = University::create(pool).await;
+        let users = Users::create(pool).await;
+        let roles = Roles::create(pool).await;
+        let user_roles = UserRoles::create(pool).await;
+        let reviews = Reviews::create(pool).await;
+        let comments = Comments::create(pool).await;
+        let locations = Locations::create(pool).await;
+        let pictures = Pictures::create(pool).await;
+
+        Self {
+            university,
+            users,
+            roles,
+            user_roles,
+            reviews,
+            comments,
+            locations,
+            pictures,
+        }
     }
 }
 
-enum Roles {
-    Guest,
-    Student,
-    Admin,
-}
-
+struct Roles;
+    
 impl Roles {
-    async fn create(pool: &Pool<MySql>) {
+    async fn create(pool: &Pool<MySql>) -> Self {
         if let Err(e) = query(r#"CREATE TABLE Roles (
             `role` VARCHAR(64) PRIMARY KEY
             );"#).execute(pool).await 
         {
             println!("{:?}", e);
         };
+
+        Self
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -82,17 +80,24 @@ impl Roles {
             println!("{:?}", e);
         };
     }
+
+    pub async fn select_by_key(pool: &Pool<MySql>, key: &str) -> String {
+        sqlx::query(&format!("SELECT {} FROM roles", key)).fetch_one(pool).await.unwrap();
+        String::new()        
+    }
+}
+
+enum RolesRow {
+    Guest,
+    Student,
+    Admin,
 }
 
 
-struct University {
-    id: i64,
-    title: String,
-    city: String,
-}
+struct University;
 
 impl University {
-    async fn create(pool: &Pool<MySql>) {
+    async fn create(pool: &Pool<MySql>) -> Self {
         if let Err(e) = query(r#"CREATE TABLE University (
             university_id INTEGER PRIMARY KEY AUTO_INCREMENT,
             title VARCHAR(256) NOT NULL,
@@ -102,6 +107,8 @@ impl University {
         {
             println!("{:?}", e);
         };
+
+        Self
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -111,19 +118,16 @@ impl University {
     }
 }
 
-struct Users {
+struct UniversityRow {
     id: i64,
-    univer_id: i64,
-    first_name: String,
-    last_name: String,
-    middle_name: String,
-    role: Roles,
-    institute: String,
-    phone: String,
+    title: String,
+    city: String,
 }
 
+struct Users;
+
 impl Users {
-    async fn create(pool: &Pool<MySql>) {
+    async fn create(pool: &Pool<MySql>) -> Self {
         if let Err(e) = query(r#"CREATE TABLE Users (
             user_id INTEGER PRIMARY KEY AUTO_INCREMENT,
             university_id INTEGER NOT NULL,
@@ -138,6 +142,8 @@ impl Users {
         {
             println!("{:?}", e);
         };
+
+        Self
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -147,13 +153,21 @@ impl Users {
     }
 }
 
-struct UserRoles {
+struct UsersRow {
     id: i64,
+    univer_id: i64,
+    first_name: String,
+    last_name: String,
+    middle_name: String,
     role: Roles,
+    institute: String,
+    phone: String,
 }
 
+struct UserRoles;
+
 impl UserRoles {
-    async fn create(pool: &Pool<MySql>) {
+    async fn create(pool: &Pool<MySql>) -> Self {
         if let Err(e) = query(r#"CREATE TABLE UsersRoles (
             user_id INTEGER NOT NULL,
             `role` VARCHAR(64) NOT NULL,
@@ -164,6 +178,8 @@ impl UserRoles {
         {
             println!("{:?}", e);
         };
+
+        Self
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -173,16 +189,15 @@ impl UserRoles {
     }
 }
 
-struct Reviews {
+struct UserRolesRow {
     id: i64,
-    user_id: i64,
-    review: String,
-    date_time: usize,
-    evaluation: i64,
+    role: Roles,
 }
 
+struct Reviews;
+
 impl Reviews {
-    async fn create(pool: &Pool<MySql>) {
+    async fn create(pool: &Pool<MySql>) -> Self {
         if let Err(e) = query(r#"CREATE TABLE Reviews (
             review_id INTEGER PRIMARY KEY AUTO_INCREMENT,
             user_id INTEGER NOT NULL,
@@ -194,6 +209,8 @@ impl Reviews {
         {
             println!("{:?}", e);
         };
+
+        Self
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -203,14 +220,18 @@ impl Reviews {
     }
 }
 
-struct Comments {
+struct ReviewsRow {
+    id: i64,
     user_id: i64,
-    review_id: i64,
+    review: String,
     date_time: usize,
+    evaluation: i64,
 }
 
+struct Comments;
+
 impl Comments {
-    async fn create(pool: &Pool<MySql>) {
+    async fn create(pool: &Pool<MySql>) -> Self {
         if let Err(e) = query(r#"CREATE TABLE Comments (
             user_id INTEGER NOT NULL,
             review_id INTEGER NOT NULL,
@@ -223,6 +244,8 @@ impl Comments {
         {
             println!("{:?}", e);
         };
+
+        Self
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -232,14 +255,16 @@ impl Comments {
     }
 }
 
-struct Locations {
-    id: usize,
-    title: String,
-    info: String,
+struct CommentsRow {
+    user_id: i64,
+    review_id: i64,
+    date_time: usize,
 }
 
+struct Locations;
+
 impl Locations {
-    async fn create(pool: &Pool<MySql>) {
+    async fn create(pool: &Pool<MySql>) -> Self {
         if let Err(e) = query(r#"CREATE TABLE Locations (
             location_id INTEGER PRIMARY KEY AUTO_INCREMENT,
             university_id INTEGER NOT NULL,
@@ -249,6 +274,8 @@ impl Locations {
             );"#).execute(pool).await {
             println!("{:?}", e);
         };
+
+        Self
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -258,13 +285,16 @@ impl Locations {
     }
 }
 
-struct Pictures {
+struct LocationsRow {
     id: usize,
-    pointer: String,
+    title: String,
+    info: String,
 }
 
+struct Pictures;
+
 impl Pictures {
-    async fn create(pool: &Pool<MySql>) {
+    async fn create(pool: &Pool<MySql>) -> Self {
         if let Err(e) = query(r#"CREATE TABLE Pictures (
             picture_id INTEGER PRIMARY KEY AUTO_INCREMENT,
             location_id INTEGER NOT NULL,
@@ -274,6 +304,8 @@ impl Pictures {
         {
             println!("{:?}", e);
         };
+
+        Self
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -281,4 +313,9 @@ impl Pictures {
             println!("{:?}", e);
         };
     }
+}
+
+struct PicturesRow {
+    id: usize,
+    pointer: String,
 }
