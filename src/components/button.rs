@@ -21,7 +21,7 @@ pub fn button(props: &ButtonProps) -> Html {
     } = props;
 
     html! {
-        <div class={classes!("button", if *is_accent {"accent"} else {"base"})}>
+        <div class={classes!("button", "text-size-m16", if *is_accent {"accent"} else {"base"})}>
             if let Some(icon_name) = with_icon {
                 <span class={classes!(icon_name)}></span>
             }

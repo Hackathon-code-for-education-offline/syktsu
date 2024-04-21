@@ -1,16 +1,48 @@
+use std::collections::HashMap;
+
 use js_sys::Object;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
-use yew::AttrValue;
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Default, PartialEq, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct PannellumOptions<'a> {
-    #[serde(rename = "type")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub _type: Option<&'a str>,
+    pub default: PannellumDefault<'a>,
+    pub scenes: HashMap<&'a str, PannellumScene<'a>>,
+}
 
+#[derive(Serialize, Deserialize, Default, PartialEq, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct PannellumDefault<'a> {
+    pub first_scene: &'a str,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub panorama: Option<&'a str>,
+    pub author: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scene_fade_duration: Option<usize>,
+}
+
+#[derive(Serialize, Deserialize, Default, PartialEq, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct PannellumScene<'a> {
+    #[serde(rename = "type")]
+    pub _type: &'a str,
+    pub panorama: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hot_spots: Option<Vec<HotSpot<'a>>>,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone, PartialEq, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct HotSpot<'a> {
+    pub pitch: i64,
+    pub yaw: i64,
+    #[serde(rename = "type")]
+    pub _type: &'a str,
+    pub text: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scene_id: Option<&'a str>,
 }
 
 #[wasm_bindgen]

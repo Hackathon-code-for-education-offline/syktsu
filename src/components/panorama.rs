@@ -1,3 +1,7 @@
+use gloo_utils::format::JsValueSerdeExt;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
+use wasm_bindgen::JsValue;
 use yew::prelude::*;
 use yew_hooks::use_event_with_window;
 
@@ -6,31 +10,29 @@ use crate::{
     utils::{PannellumOptions, WINDOW},
 };
 
-#[derive(PartialEq, Properties, Clone)]
+#[derive(PartialEq, Properties, Clone, Serialize)]
 pub struct PanoramaProps {
-    pub panorama_id: AttrValue,
-    pub _type: AttrValue,
-    pub panorama: Option<AttrValue>,
+    pub options: PannellumOptions<'static>,
 }
 
 #[function_component(Panorama)]
 pub fn panorama(props: &PanoramaProps) -> Html {
-    let elem_id = props.panorama_id.clone();
+    let options = props.options.clone();
+    let panorama_id = "panorama";
 
     use_event_with_window("load", move |_: Event| {
-        let options = serde_wasm_bindgen::to_value(&PannellumOptions {
-            _type: "equirectangular".into(),
-            panorama: "https://pannellum.org/images/alma.jpg".into(),
-        })
-        .unwrap_or_default();
-
         WINDOW
             .pannellum()
-            .and_then(|pan| pan.viewer(elem_id.as_str(), options))
+            .and_then(|pan| {
+                pan.viewer(
+                    panorama_id,
+                    JsValue::from_serde(&options).unwrap_or_default(),
+                )
+            })
             .unwrap_or_else(|e| tracing::error!("{}", UiError::from(e)));
     });
 
     html! {
-        <div id={props.panorama_id.clone()}></div>
+        <div id={panorama_id}></div>
     }
 }
