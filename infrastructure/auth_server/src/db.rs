@@ -1,3 +1,4 @@
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use sqlx::{query, MySql, MySqlPool, Pool};
 
 
@@ -8,6 +9,7 @@ const DB_PASS: &str = "test_pass";
 
 pub struct DB {
     pub pool: Pool<MySql>,
+    pub tables: Tables,
 }
 
 impl DB {
@@ -16,25 +18,21 @@ impl DB {
         let pool = MySqlPool::connect(&url).await.unwrap();
         println!("Успешно подключен к базе данных!");
 
-        Tables::init(&pool).await;
+        let tables = Tables::init(&pool).await;
 
-        Self {pool}
-    }
-
-    pub async fn show_table(&self, name: &str) {
-        query(&format!("SELECT * FROM {};", name)).execute(&self.pool).await.unwrap();
+        Self {pool, tables}
     }
 }
 
 pub struct Tables {
-    university: University,
-    users: Users,
-    roles: Roles,
-    user_roles: UserRoles,
-    reviews: Reviews,
-    comments: Comments,
-    locations: Locations,
-    pictures: Pictures,
+    pub university: University,
+    pub users: Users,
+    pub roles: Roles,
+    pub user_roles: UserRoles,
+    pub reviews: Reviews,
+    pub comments: Comments,
+    pub locations: Locations,
+    pub pictures: Pictures,
 }
 
 impl Tables {
@@ -61,7 +59,9 @@ impl Tables {
     }
 }
 
-struct Roles;
+pub struct Roles {
+    pool: Pool<MySql>
+}
     
 impl Roles {
     async fn create(pool: &Pool<MySql>) -> Self {
@@ -72,7 +72,7 @@ impl Roles {
             println!("{:?}", e);
         };
 
-        Self
+        Self {pool: pool.clone()}
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -81,50 +81,77 @@ impl Roles {
         };
     }
 
-    pub async fn select_by_key(pool: &Pool<MySql>, key: &str) -> String {
-        sqlx::query(&format!("SELECT {} FROM roles", key)).fetch_one(pool).await.unwrap();
-        String::new()        
+    pub async fn select_by_key(&self, key: &str) -> String {
+        let q = sqlx::query(&format!("SELECT {} FROM roles", key)).fetch_one(&self.pool).await.unwrap();
+        format!("{:?}", q)  
     }
 }
 
-enum RolesRow {
+pub enum RolesRow {
     Guest,
     Student,
     Admin,
 }
 
 
-struct University;
+pub struct University {
+    pool: Pool<MySql>
+}
 
 impl University {
-    async fn create(pool: &Pool<MySql>) -> Self {
+    pub async fn create(pool: &Pool<MySql>) -> Self {
         if let Err(e) = query(r#"CREATE TABLE University (
             university_id INTEGER PRIMARY KEY AUTO_INCREMENT,
             title VARCHAR(256) NOT NULL,
             city VARCHAR(64),
-               admission_committee VARCHAR(512)
+            admission_committee VARCHAR(512)
             );"#).execute(pool).await 
         {
             println!("{:?}", e);
         };
 
-        Self
+        Self {pool: pool.clone()}
     }
 
-    async fn insert(pool: &Pool<MySql>) {
-        if let Err(e) = query(r#""#).execute(pool).await {
+    pub async fn insert(&self, row: UniversityRow) {
+        if let Err(e) = query(&format!("insert into University (title, city) values ('{}', '{}');", row.title.unwrap(), row.city.unwrap())).execute(&self.pool).await {
             println!("{:?}", e);
         };
     }
+
+    pub async fn select_by_key(&self, key: &str) -> String {
+        let request = &format!("SELECT {} FROM University", key);
+        let row = sqlx::query_as::<_, UniversityRow>(request).fetch_one(&self.pool).await.unwrap();
+        
+        row.into_json()
+    }
+
+    pub async fn select_all(&self) -> String {
+        let request = &format!("SELECT * FROM University");
+        let row = sqlx::query_as::<_, UniversityRow>(request).fetch_all(&self.pool).await.unwrap();
+        
+        serde_json::to_string(&row).unwrap()
+    }
 }
 
-struct UniversityRow {
-    id: i64,
-    title: String,
-    city: String,
+#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+pub struct UniversityRow {
+    university_id : i64,
+    title: Option<String>,
+    city: Option<String>,
+    admission_committee: Option<String>,
+}
+impl InJson for UniversityRow {}
+
+impl UniversityRow {
+    pub fn new(title: &str, city: &str, comm_link: &str) -> Self {
+        Self { university_id : 0, title: Some(title.to_string()), city: Some(city.to_string()), admission_committee: Some(comm_link.to_string()) }
+    }
 }
 
-struct Users;
+pub struct Users {
+    pool: Pool<MySql>
+}
 
 impl Users {
     async fn create(pool: &Pool<MySql>) -> Self {
@@ -143,7 +170,7 @@ impl Users {
             println!("{:?}", e);
         };
 
-        Self
+        Self {pool: pool.clone()}
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -153,18 +180,22 @@ impl Users {
     }
 }
 
-struct UsersRow {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UsersRow {
     id: i64,
     univer_id: i64,
     first_name: String,
     last_name: String,
     middle_name: String,
-    role: Roles,
+    // role: Roles,
     institute: String,
     phone: String,
 }
+impl InJson for UsersRow {}
 
-struct UserRoles;
+pub struct UserRoles {
+    pool: Pool<MySql>
+}
 
 impl UserRoles {
     async fn create(pool: &Pool<MySql>) -> Self {
@@ -179,7 +210,7 @@ impl UserRoles {
             println!("{:?}", e);
         };
 
-        Self
+        Self {pool: pool.clone()}
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -189,12 +220,16 @@ impl UserRoles {
     }
 }
 
-struct UserRolesRow {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserRolesRow {
     id: i64,
-    role: Roles,
+    // role: Roles,
 }
+impl InJson for UserRolesRow {}
 
-struct Reviews;
+pub struct Reviews {
+    pool: Pool<MySql>
+}
 
 impl Reviews {
     async fn create(pool: &Pool<MySql>) -> Self {
@@ -210,7 +245,7 @@ impl Reviews {
             println!("{:?}", e);
         };
 
-        Self
+        Self {pool: pool.clone()}
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -220,15 +255,19 @@ impl Reviews {
     }
 }
 
-struct ReviewsRow {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReviewsRow {
     id: i64,
     user_id: i64,
     review: String,
     date_time: usize,
     evaluation: i64,
 }
+impl InJson for ReviewsRow {}
 
-struct Comments;
+pub struct Comments {
+    pool: Pool<MySql>
+}
 
 impl Comments {
     async fn create(pool: &Pool<MySql>) -> Self {
@@ -245,7 +284,7 @@ impl Comments {
             println!("{:?}", e);
         };
 
-        Self
+        Self {pool: pool.clone()}
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -255,13 +294,17 @@ impl Comments {
     }
 }
 
-struct CommentsRow {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CommentsRow {
     user_id: i64,
     review_id: i64,
     date_time: usize,
 }
+impl InJson for CommentsRow {}
 
-struct Locations;
+pub struct Locations {
+    pool: Pool<MySql>
+}
 
 impl Locations {
     async fn create(pool: &Pool<MySql>) -> Self {
@@ -275,7 +318,7 @@ impl Locations {
             println!("{:?}", e);
         };
 
-        Self
+        Self {pool: pool.clone()}
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -285,13 +328,17 @@ impl Locations {
     }
 }
 
-struct LocationsRow {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LocationsRow {
     id: usize,
     title: String,
     info: String,
 }
+impl InJson for LocationsRow {}
 
-struct Pictures;
+pub struct Pictures {
+    pool: Pool<MySql>
+}
 
 impl Pictures {
     async fn create(pool: &Pool<MySql>) -> Self {
@@ -305,7 +352,7 @@ impl Pictures {
             println!("{:?}", e);
         };
 
-        Self
+        Self {pool: pool.clone()}
     }
 
     async fn insert(pool: &Pool<MySql>) {
@@ -315,7 +362,19 @@ impl Pictures {
     }
 }
 
-struct PicturesRow {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PicturesRow {
     id: usize,
     pointer: String,
+}
+impl InJson for PicturesRow {}
+
+pub trait InJson: Serialize + DeserializeOwned {
+    fn into_json(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
+
+    fn from_json<T: DeserializeOwned>(raw: &str) -> T {
+        serde_json::from_str(raw).unwrap()
+    }
 }

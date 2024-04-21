@@ -3,18 +3,23 @@
 mod db;
 mod jwt;
 
-use db::DB;
+use db::{UniversityRow, DB};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use rocket::serde::json::Json;
 use serde::{Serialize, Deserialize};
+
 struct State {
-    
+    db: DB,
 }
 
 
 impl State {
-    pub async fn init() {
-        let _ = DB::init().await;
+    pub async fn init() -> Self {
+        let db = DB::init().await;
+
+        Self {
+            db,
+        }
     }
 }
 
@@ -26,7 +31,9 @@ async fn rocket() -> _ {
     rocket::build()
         .manage(state)
         .mount("/", routes![
-            // read
+            university,
+            university_add,
+            display_all,
         ])
 }
 
@@ -47,7 +54,18 @@ fn generate_token(claims: Json<Claims>) -> String {
     token
 }
 
-#[post("/university/<id>")]
-fn university(id: String) -> String {
-    id
+#[get("/university/add")]
+async fn university_add(state: &rocket::State<State>) {
+    let row = UniversityRow::new("CГУ", "Сыктывкар", "example.com");
+    state.db.tables.university.insert(row).await;
+}
+
+#[get("/university/<id>")]
+async fn university(state: &rocket::State<State>, id: String) -> String {
+    state.db.tables.university.select_by_key(&id).await
+}
+
+#[get("/university/display")]
+async fn display_all(state: &rocket::State<State>) -> String {
+    state.db.tables.university.select_all().await
 }
