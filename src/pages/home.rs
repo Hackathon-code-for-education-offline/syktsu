@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Div};
+use std::collections::HashMap;
 
 use app_interface::{Code, Response, University};
 use gloo_utils::window;
@@ -7,7 +7,7 @@ use yew::prelude::*;
 use yew_hooks::{use_async_with_options, UseAsyncHandle, UseAsyncOptions};
 
 use crate::shared::{
-    config::{API_PORT, API_UNIVERSITY_PATH},
+    config::{API_IP, API_PORT, API_UNIVERSITY_PATH},
     error::UiError,
 };
 
@@ -22,12 +22,6 @@ pub fn home() -> Html {
 
             <section class={"slider"}>
                 <HomeCards />
-
-                // {
-                //     universities.into_iter()
-                //         .map(|u| )
-                //         .collect::<Html>()
-                // }
             </section>
         </>
     }
@@ -38,7 +32,7 @@ fn home_cards() -> Html {
     // let res: Response<Vec<University>>;
     // let session = use_local_storage::<String>(LOCAL_SESSION.to_string());
 
-    let university: UseAsyncHandle<Response<Vec<University>>, UiError> = use_async_with_options(
+    let university: UseAsyncHandle<Vec<University>, UiError> = use_async_with_options(
         async move {
             let client = reqwest::Client::new();
 
@@ -50,7 +44,7 @@ fn home_cards() -> Html {
             let protocol = location.protocol().map_err(|e| UiError::from(e))?;
             let hostname = location.hostname().map_err(|e| UiError::from(e))?;
 
-            let api_url = format!("{protocol}//{hostname}:{API_PORT}/{API_UNIVERSITY_PATH}");
+            let api_url = format!("{protocol}//{API_IP}:{API_PORT}/{API_UNIVERSITY_PATH}");
 
             let res_body = client
                 .get(api_url)
@@ -58,20 +52,9 @@ fn home_cards() -> Html {
                 .send()
                 .await
                 .map_err(|e| UiError::from(e))?
-                .json::<Response<Vec<University>>>()
+                .json::<Vec<University>>()
                 .await
                 .map_err(|e| UiError::from(e))?;
-
-            // let res_body = client
-            //     .post(api_url)
-            //     .header(CONTENT_TYPE, "application/json")
-            //     .json(&payload)
-            //     .send()
-            //     .await
-            //     .map_err(|e| UiError::from(e))?
-            //     .json::<Response<Vec<University>>>()
-            //     .await
-            //     .map_err(|e| UiError::from(e))?;
 
             Ok(res_body)
         },
@@ -79,25 +62,20 @@ fn home_cards() -> Html {
     );
 
     if let Some(data) = university.data.clone() {
-        if let Code::Success = data.code {
-            return data
-                .payload
-                .into_iter()
-                .map(|u| {
-                    html! {
-                       <div class={classes!("home__university-card")}>
-                            <img src={u.link_profile} alt={u.title.clone()} />
-                            <p class={classes!("text-size-r16")}>{ u.title }</p>
-                            <span class={classes!("icon-star")}></span>
-                            <p class={classes!("text-size-r16")}>{ u.score }</p>
-                            <p class={classes!("text-size-r16", "disabled")}>{ u.voters }</p>
-                       </div>
-                    }
-                })
-                .collect::<Html>();
-        } else {
-            tracing::error!("unable to get universities")
-        }
+        return data
+            .into_iter()
+            .map(|u| {
+                html! {
+                    <div class={classes!("slider__card")}>
+                        <img src={u.link_pic} alt={u.title.clone()} class={classes!("slider__card__image")} />
+                        <p class={classes!("text-size-r16", "slider__card__title")}>{ u.title }</p>
+                        <span class={classes!("icon-star","slider__card__star")}></span>
+                        <p class={classes!("text-size-r16", "slider__card__score")}>{ u.score }</p>
+                        <p class={classes!("text-size-r16", "disabled", "slider__card__voters")}>{ u.voters }</p>
+                    </div>
+                }
+            })
+            .collect::<Html>();
         // use crate::utils::WINDOW;
 
         // if let Ok(tauri_internals) = WINDOW

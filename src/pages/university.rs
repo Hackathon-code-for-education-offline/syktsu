@@ -1,16 +1,13 @@
 use std::{collections::HashMap, vec};
 
+use app_interface::{HotSpot, PannellumDefault, PannellumOptions, PannellumScene};
 use serde_json::json;
 use wasm_bindgen::JsValue;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew_hooks::use_effect_once;
 
-use crate::{
-    components::panorama::Panorama,
-    shared::error::UiError,
-    utils::{HotSpot, PannellumDefault, PannellumOptions, PannellumScene, WINDOW},
-};
+use crate::{components::panorama::Panorama, shared::error::UiError, utils::WINDOW};
 
 #[derive(PartialEq, Properties)]
 pub struct UniversityProps {
@@ -55,24 +52,24 @@ pub fn university_map(props: &UniversityProps) -> Html {
 
     let mut scenes = HashMap::new();
     scenes.insert(
-        "campus",
+        "campus".to_string(),
         PannellumScene {
-            _type: "equirectangular",
-            panorama: "https://pannellum.org/images/alma.jpg",
+            _type: "equirectangular".to_string(),
+            panorama: "https://pannellum.org/images/alma.jpg".to_string(),
             hot_spots: vec![
                 HotSpot {
-                    pitch: -12,
-                    yaw: 170,
-                    _type: "info",
-                    text: "This is Jordan Pond, located in Acadia National Park.",
+                    pitch: -1.02,
+                    yaw: 170.0,
+                    _type: "info".to_string(),
+                    text: "This is Jordan Pond, located in Acadia National Park.".to_string(),
                     ..Default::default()
                 },
                 HotSpot {
-                    pitch: -24,
-                    yaw: 170,
-                    _type: "scene",
-                    text: "This is Jordan Pond, located in Acadia National Park.",
-                    scene_id: "kitchen".into(),
+                    pitch: -24.0,
+                    yaw: 170.0,
+                    _type: "scene".to_string(),
+                    text: "This is Jordan Pond, located in Acadia National Park.".to_string(),
+                    scene_id: "kitchen".to_string().into(),
                     ..Default::default()
                 },
             ]
@@ -81,15 +78,15 @@ pub fn university_map(props: &UniversityProps) -> Html {
         },
     );
     scenes.insert(
-        "kitchen",
+        "kitchen".to_string(),
         PannellumScene {
-            _type: "equirectangular",
-            panorama: "https://pannellum.org/images/alma.jpg",
+            _type: "equirectangular".to_string(),
+            panorama: "https://pannellum.org/images/alma.jpg".to_string(),
             hot_spots: vec![HotSpot {
-                pitch: -12,
-                yaw: 100,
-                _type: "info",
-                text: "This is Jordan Pond, located in Acadia National Park.",
+                pitch: -12.0,
+                yaw: 100.0,
+                _type: "info".to_string(),
+                text: "This is Jordan Pond, located in Acadia National Park.".to_string(),
                 ..Default::default()
             }]
             .into(),
@@ -99,7 +96,7 @@ pub fn university_map(props: &UniversityProps) -> Html {
 
     let options = PannellumOptions {
         default: PannellumDefault {
-            first_scene: "campus",
+            first_scene: "campus".to_string(),
             ..Default::default()
         },
         scenes,

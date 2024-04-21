@@ -30,6 +30,14 @@ rustup target add wasm32-unknown-unknown
 cargo install trunk
 ```
 
+##### 6. Установить [Node.js](https://nodejs.org/en/download/)
+
+##### 7. Установить json-server
+
+```
+npm install -g json-server@0.17.4
+```
+
 </details>
 </details>
 
@@ -39,6 +47,14 @@ cargo install trunk
 <summary>Для Windows</summary>
 
 ##### 1. в режиме "dev":
+
+##### - Запуск аварийного сервера данных и Docker
+
+```
+json-server --watch test/db.json --port 8000
+
+
+```
 
 ###### - Чистый Web
 

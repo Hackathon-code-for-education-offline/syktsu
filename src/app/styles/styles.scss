@@ -99,6 +99,26 @@
     opacity: 0.4;
 }
 
+.slider {
+    overflow: auto;
+    column-gap: 2rem;
+    grid-auto-flow: column;
+    @extend %display_grid;
+}
+
+.slider__card {
+    grid-template-areas: 
+        "image image image"
+        "title title title"
+        "star score voters";
+    max-width: 100%;
+    @extend %display_grid;
+}
+
+.slider__card {
+    @extend %display_grid;
+}
+
 main {
     padding-top: 2rem;
     row-gap: 4rem;
@@ -284,10 +304,11 @@ small,
 
 html, body {
     grid-template-rows: 4rem 1fr;
-
 }
 
 body {
+    overflow-x: hidden;
+    overflow-y: auto;
     -webkit-tap-highlight-color: transparent;
     @extend %overflow_hidden;
     @extend %display_grid;
