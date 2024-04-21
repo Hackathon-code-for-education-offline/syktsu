@@ -1,7 +1,15 @@
 use std::borrow::Cow;
 
-use crate::components::{button::Button, input::Input};
+use crate::shared::config::{API_PORT, API_UNIVERSITY_PATH};
+use crate::{
+    components::{button::Button, input::Input},
+    pages::university::University,
+    shared::{error::UiError, response::Response},
+};
 use app_interface::LoginRequest;
+use gloo_utils::window;
+use reqwest::header::CONTENT_TYPE;
+use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew_router::hooks::use_navigator;
@@ -11,44 +19,6 @@ pub fn login() -> Html {
     let username_ref = use_node_ref();
     let password_ref = use_node_ref();
     let navigator = use_navigator().unwrap();
-
-    let is_auth: UseAsyncHandle<Response<Vec<University>>, UiError> = use_async_with_options(
-        async move {
-            let client = reqwest::Client::new();
-
-            let mut payload = HashMap::new();
-            payload.insert("session", "rust");
-
-            let location = window().location();
-
-            let protocol = location.protocol().map_err(|e| UiError::from(e))?;
-            let hostname = location.hostname().map_err(|e| UiError::from(e))?;
-
-            let api_url = format!("{protocol}//{hostname}:{API_PORT}/{API_UNIVERSITY_PATH}");
-
-            let res_body = client
-                .post(api_url)
-                .header(CONTENT_TYPE, "application/json")
-                .json(&payload)
-                .send()
-                .await
-                .map_err(|e| UiError::from(e))?
-                .json::<Response<Vec<University>>>()
-                .await
-                .map_err(|e| UiError::from(e))?;
-
-            Ok(res_body)
-        },
-        UseAsyncOptions::enable_auto(),
-    );
-
-    let Some(data) = university.data else {
-        if let Some(e) = university.error {
-            tracing::error!("{e}");
-        }
-
-        return html!();
-    };
 
     let go_back = use_callback((), move |_e: MouseEvent, _| navigator.back());
 
@@ -70,7 +40,38 @@ pub fn login() -> Html {
                 .unwrap_or_default();
 
             let req = LoginRequest { username, password };
-            tracing::warn!("{:?}", req)
+
+            spawn_local(async move {
+                let location = window().location();
+                let client = reqwest::Client::new();
+
+                let protocol = location
+                    .protocol()
+                    .map_err(|e| tracing::error!("{}", UiError::from(e)))
+                    .unwrap_or_default();
+                let hostname = location
+                    .hostname()
+                    .map_err(|e| tracing::error!("{}", UiError::from(e)))
+                    .unwrap_or_default();
+
+                let api_url = format!("{protocol}//192.168.17.129:8000/university/display");
+
+                let _ = client
+                    .get(api_url)
+                    .header(CONTENT_TYPE, "application/json")
+                    // .json(&req)
+                    .send()
+                    .await
+                    .map_err(|e| tracing::error!("{}", UiError::from(e)));
+
+                // let _ = client
+                //     .post(api_url)
+                //     .header(CONTENT_TYPE, "application/json")
+                //     .json(&req)
+                //     .send()
+                //     .await
+                //     .map_err(|e| tracing::error!("{}", UiError::from(e)));
+            })
         })
     };
 

@@ -1,11 +1,8 @@
 #[cfg(feature = "backend")]
 use rocket::{
-    data::{self, ToByteUnit, FromData, Outcome}, 
-    FromForm, 
-    http::{ContentType, Status}, 
-    request, 
-    Data, 
-    Request
+    data::{self, FromData, Outcome, ToByteUnit},
+    http::{ContentType, Status},
+    request, Data, FromForm, Request,
 };
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -24,7 +21,7 @@ pub enum Code {
     InternalServerError,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, FromForm)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LoginRequest<'a> {
     pub username: Cow<'a, str>,
     pub password: Cow<'a, str>,
@@ -71,7 +68,10 @@ impl<'r> FromData<'r> for LoginRequest<'r> {
             None => return Outcome::Error((Status::UnprocessableEntity, NoColon)),
         };
 
-        Outcome::Success(LoginRequest { username: Cow::Owned(format!("{}", username)), password: Cow::Owned(format!("{}", password)) })
+        Outcome::Success(LoginRequest {
+            username: Cow::Owned(format!("{}", username)),
+            password: Cow::Owned(format!("{}", password)),
+        })
     }
 }
 
