@@ -1,3 +1,12 @@
+#[cfg(feature = "backend")]
+use rocket::{
+    data::{self, ToByteUnit, FromData, Outcome}, 
+    FromForm, 
+    http::{ContentType, Status}, 
+    request, 
+    Data, 
+    Request
+};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
@@ -15,10 +24,18 @@ pub enum Code {
     InternalServerError,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, FromForm)]
 pub struct LoginRequest<'a> {
     pub username: Cow<'a, str>,
     pub password: Cow<'a, str>,
+}
+
+#[derive(Debug)]
+pub enum Error {
+    TooLarge,
+    NoColon,
+    InvalidAge,
+    Io(std::io::Error),
 }
 
 #[cfg(feature = "backend")]
@@ -49,18 +66,12 @@ impl<'r> FromData<'r> for LoginRequest<'r> {
         let string = request::local_cache!(req, string);
 
         // Split the string into two pieces at ':'.
-        let (name, age) = match string.find(':') {
+        let (username, password) = match string.find(':') {
             Some(i) => (&string[..i], &string[(i + 1)..]),
             None => return Outcome::Error((Status::UnprocessableEntity, NoColon)),
         };
 
-        // Parse the age.
-        let age: u16 = match age.parse() {
-            Ok(age) => age,
-            Err(_) => return Outcome::Error((Status::UnprocessableEntity, InvalidAge)),
-        };
-
-        Outcome::Success(Person { name, age })
+        Outcome::Success(LoginRequest { username: Cow::Owned(format!("{}", username)), password: Cow::Owned(format!("{}", password)) })
     }
 }
 
