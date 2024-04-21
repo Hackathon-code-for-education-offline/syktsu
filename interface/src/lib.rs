@@ -5,7 +5,8 @@ use rocket::{
     request, Data, FromForm, Request,
 };
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use serde_json::json;
+use std::{borrow::Cow, collections::HashMap};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Response<T> {
@@ -21,7 +22,6 @@ pub enum Code {
     InternalServerError,
 }
 
-#[cfg(feature = "backend")]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LoginRequest {
     pub username: String,
@@ -115,12 +115,108 @@ impl<'r> FromData<'r> for LoginRequest {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct University<'a> {
+pub struct University {
     pub id: usize,
-    pub title: Cow<'a, str>,
-    pub country: Cow<'a, str>,
+    pub title: String,
+    pub country: String,
     pub score: f32,
     pub voters: usize,
-    pub link_profile: Cow<'a, str>,
-    pub link_pic: Cow<'a, str>,
+    #[serde(rename(deserialize = "linkProfile"))]
+    pub link_profile: String,
+    #[serde(rename(deserialize = "linkPic"))]
+    pub link_pic: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub map: Option<PannellumOptions>,
+}
+
+#[derive(Serialize, Default, PartialEq, Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PannellumOptions {
+    pub default: PannellumDefault,
+    pub scenes: HashMap<String, PannellumScene>,
+}
+
+#[derive(Serialize, Deserialize, Default, PartialEq, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct PannellumDefault {
+    #[serde(rename(deserialize = "firstScene"))]
+    pub first_scene: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename(deserialize = "sceneFadeDuration"))]
+    pub scene_fade_duration: Option<usize>,
+}
+
+#[derive(Serialize, Deserialize, Default, PartialEq, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct PannellumScene {
+    #[serde(rename = "type")]
+    #[serde(rename(deserialize = "type"))]
+    pub _type: String,
+    pub panorama: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename(deserialize = "hotSpots"))]
+    pub hot_spots: Option<Vec<HotSpot>>,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone, PartialEq, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct HotSpot {
+    pub pitch: f64,
+    pub yaw: f64,
+    #[serde(rename = "type")]
+    #[serde(rename(deserialize = "type"))]
+    pub _type: String,
+    pub text: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename(deserialize = "sceneId"))]
+    pub scene_id: Option<String>,
+}
+
+#[test]
+fn convert() {
+    let test = json!({
+      "default": {
+          "firstScene": "circle"
+      },
+
+      "scenes": {
+          "circle": {
+              "type": "equirectangular",
+              "panorama": "/images/from-tree.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": -2.1,
+                      "yaw": 132.9,
+                      "type": "scene",
+                      "text": "Spring House or Dairy",
+                      "sceneId": "house"
+                  }
+              ]
+          },
+
+          "house": {
+              "title": "Spring House or Dairy",
+              "type": "equirectangular",
+              "panorama": "/images/bma-0.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": -0.6,
+                      "yaw": 37.1,
+                      "type": "scene",
+                      "text": "Mason Circle",
+                      "sceneId": "circle"
+                  }
+              ]
+          }
+      }
+    });
+
+    println!(
+        "{:?}",
+        serde_json::from_value::<PannellumOptions>(test).is_err()
+    );
 }

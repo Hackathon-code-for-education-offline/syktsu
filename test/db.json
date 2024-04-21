@@ -6,8 +6,8 @@
       "country": "Сыктывкар",
       "score": 4.3,
       "voters": 30,
-      "link_profile": "/public/university/1",
-      "link_pic": "/public/university/1/logo.jpg" 
+      "linkProfile": "/public/university/1",
+      "linkPic": "https://smapse.ru/storage/2023/03/converted/825_585_smapse-syktyvkarskij-gosudarstvennyj-universitet-imeni-pitirima-sorokina-1.png" 
     },
     {
       "id": 2,
@@ -15,8 +15,8 @@
       "country": "Москва",
       "score": 4.7,
       "voters": 24,
-      "link_profile": "/public/university/2",
-      "link_pic": "/public/university/1/logo.jpg",
+      "linkProfile": "/public/university/2",
+      "linkPic": "https://u.9111s.ru/uploads/202107/12/5b6082481cc98810c0e534b09e8c6542.jpg",
       "map": {   
         "default": {
             "firstScene": "circle"
@@ -24,8 +24,6 @@
     
         "scenes": {
             "circle": {
-                "pitch": -3,
-                "yaw": 117,
                 "type": "equirectangular",
                 "panorama": "/images/from-tree.jpg",
                 "hotSpots": [
@@ -41,8 +39,6 @@
     
             "house": {
                 "title": "Spring House or Dairy",
-                "hfov": 110,
-                "yaw": 5,
                 "type": "equirectangular",
                 "panorama": "/images/bma-0.jpg",
                 "hotSpots": [
@@ -51,9 +47,7 @@
                         "yaw": 37.1,
                         "type": "scene",
                         "text": "Mason Circle",
-                        "sceneId": "circle",
-                        "targetYaw": -23,
-                        "targetPitch": 2
+                        "sceneId": "circle"
                     }
                 ]
             }
@@ -66,8 +60,8 @@
       "country": "Грозный",
       "score": 4.5,
       "voters": 30,
-      "link_profile": "/public/university/2",
-      "link_pic": "/public/university/1/logo.jpg"
+      "linkProfile": "/public/university/2",
+      "linkPic": "https://yandex.ru/images/search?text=ггнту+&pos=0&rpt=simage&img_url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F3%2F36%2F%25D0%259D%25D0%25BE%25D0%25B2%25D0%25BE%25D0%25B5_%25D0%25B7%25D0%25B4%25D0%25B0%25D0%25BD%25D0%25B8%25D0%25B5_%25D0%2593%25D0%2593%25D0%259D%25D0%25A2%25D0%25A3_%25D0%25B3.%25D0%2593%25D1%2580%25D0%25BE%25D0%25B7%25D0%25BD%25D1%258B%25D0%25B9.jpg&from=tabbar&lr=1106"
     }
   ]
 }

@@ -1,3 +1,4 @@
+use app_interface::PannellumOptions;
 use gloo_utils::format::JsValueSerdeExt;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -5,14 +6,11 @@ use wasm_bindgen::JsValue;
 use yew::prelude::*;
 use yew_hooks::use_event_with_window;
 
-use crate::{
-    shared::error::UiError,
-    utils::{PannellumOptions, WINDOW},
-};
+use crate::{shared::error::UiError, utils::WINDOW};
 
 #[derive(PartialEq, Properties, Clone, Serialize)]
 pub struct PanoramaProps {
-    pub options: PannellumOptions<'static>,
+    pub options: PannellumOptions,
 }
 
 #[function_component(Panorama)]
