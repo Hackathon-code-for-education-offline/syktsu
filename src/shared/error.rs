@@ -6,9 +6,9 @@ use wasm_bindgen::JsValue;
 
 #[derive(Error, Debug, Serialize, Deserialize, Clone)]
 pub enum UiError<'a> {
-    #[error("an error occured at client-side")]
+    #[error("an error occured at client-side: {0}")]
     JsError(Cow<'a, str>),
-    #[error("reqwest error occured")]
+    #[error("reqwest error occured: {0}")]
     ReqwestError(Cow<'a, str>),
     #[error("unknown client-side error")]
     Unknown,
