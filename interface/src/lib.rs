@@ -120,6 +120,11 @@ impl<'r> FromData<'r> for LoginRequest {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct University<'a> {
+    pub id: usize,
+    pub title: Cow<'a, str>,
+    pub country: Cow<'a, str>,
+    pub score: f32,
+    pub voters: usize,
     pub link_profile: Cow<'a, str>,
     pub link_pic: Cow<'a, str>,
 }

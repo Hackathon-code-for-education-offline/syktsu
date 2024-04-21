@@ -12,6 +12,44 @@ pub fn login() -> Html {
     let password_ref = use_node_ref();
     let navigator = use_navigator().unwrap();
 
+    let is_auth: UseAsyncHandle<Response<Vec<University>>, UiError> = use_async_with_options(
+        async move {
+            let client = reqwest::Client::new();
+
+            let mut payload = HashMap::new();
+            payload.insert("session", "rust");
+
+            let location = window().location();
+
+            let protocol = location.protocol().map_err(|e| UiError::from(e))?;
+            let hostname = location.hostname().map_err(|e| UiError::from(e))?;
+
+            let api_url = format!("{protocol}//{hostname}:{API_PORT}/{API_UNIVERSITY_PATH}");
+
+            let res_body = client
+                .post(api_url)
+                .header(CONTENT_TYPE, "application/json")
+                .json(&payload)
+                .send()
+                .await
+                .map_err(|e| UiError::from(e))?
+                .json::<Response<Vec<University>>>()
+                .await
+                .map_err(|e| UiError::from(e))?;
+
+            Ok(res_body)
+        },
+        UseAsyncOptions::enable_auto(),
+    );
+
+    let Some(data) = university.data else {
+        if let Some(e) = university.error {
+            tracing::error!("{e}");
+        }
+
+        return html!();
+    };
+
     let go_back = use_callback((), move |_e: MouseEvent, _| navigator.back());
 
     let onsubmit = {
@@ -48,8 +86,6 @@ pub fn login() -> Html {
 
                 <Button is_accent=true value="Войти" classes={classes!("login__form__button")} _type={"submit"} />
             </form>
-
-
         </div>
     }
 }

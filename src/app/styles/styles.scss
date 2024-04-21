@@ -95,6 +95,10 @@
     padding: 0;
 }
 
+.disabled {
+    opacity: 0.4;
+}
+
 main {
     padding-top: 2rem;
     row-gap: 4rem;
