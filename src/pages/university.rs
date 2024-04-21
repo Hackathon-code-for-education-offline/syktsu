@@ -1,3 +1,5 @@
+use std::{collections::HashMap, vec};
+
 use serde_json::json;
 use wasm_bindgen::JsValue;
 use web_sys::HtmlElement;
@@ -7,7 +9,7 @@ use yew_hooks::use_effect_once;
 use crate::{
     components::panorama::Panorama,
     shared::error::UiError,
-    utils::{PannellumOptions, WINDOW},
+    utils::{HotSpot, PannellumDefault, PannellumOptions, PannellumScene, WINDOW},
 };
 
 #[derive(PartialEq, Properties)]
@@ -39,43 +41,60 @@ pub fn universities() -> Html {
 #[function_component(UniversityMap)]
 pub fn university_map(props: &UniversityProps) -> Html {
     let UniversityProps { id } = props;
-    // let university_id = id;
-    // let elem_ref = use_node_ref();
 
-    // use_effect_with(elem_ref.clone(), move |elem_ref| {
-    //     if let Some(pan_id) = elem_ref.cast::<HtmlElement>().map(|e| e.id()) {
-    //         if let Ok(pan) = WINDOW.pannellum() {
-    //             let options = serde_wasm_bindgen::to_value(&PannellumOptions {
-    //                 _type: "equirectangular".to_string().into(),
-    //                 panorama: "https://pannellum.org/images/alma.jpg".to_string().into(),
-    //             })
-    //             .unwrap_or_default();
-    //             // let options = serde_wasm_bindgen::to_value(&json!({
-    //             //     "type": "equirectangular",
-    //             //     "panorama": "https://pannellum.org/images/alma.jpg"
-    //             // }))
-    //             // .unwrap_or_default();
+    let mut scenes = HashMap::new();
+    scenes.insert(
+        "campus",
+        PannellumScene {
+            _type: "equirectangular",
+            panorama: "https://pannellum.org/images/alma.jpg",
+            hot_spots: vec![
+                HotSpot {
+                    pitch: -12,
+                    yaw: 170,
+                    _type: "info",
+                    text: "This is Jordan Pond, located in Acadia National Park.",
+                    ..Default::default()
+                },
+                HotSpot {
+                    pitch: -24,
+                    yaw: 170,
+                    _type: "scene",
+                    text: "This is Jordan Pond, located in Acadia National Park.",
+                    scene_id: "kitchen".into(),
+                    ..Default::default()
+                },
+            ]
+            .into(),
+            ..Default::default()
+        },
+    );
+    scenes.insert(
+        "kitchen",
+        PannellumScene {
+            _type: "equirectangular",
+            panorama: "https://pannellum.org/images/alma.jpg",
+            hot_spots: vec![HotSpot {
+                pitch: -12,
+                yaw: 100,
+                _type: "info",
+                text: "This is Jordan Pond, located in Acadia National Park.",
+                ..Default::default()
+            }]
+            .into(),
+            ..Default::default()
+        },
+    );
 
-    //             tracing::warn!("{:?}", options);
-
-    //             let _ = pan
-    //                 .viewer(pan_id.as_str(), options)
-    //                 .map_err(|e| tracing::error!("{}", UiError::from(e)));
-    //         };
-    //     };
-
-    //     tracing::error!("unable to get panorama element");
-
-    //     || ()
-    // });
-
-    // pannellum.viewer('panorama', {
-    //     "type": "equirectangular",
-    //     "panorama": "https://pannellum.org/images/alma.jpg"
-    // });
+    let options = PannellumOptions {
+        default: PannellumDefault {
+            first_scene: "campus",
+            ..Default::default()
+        },
+        scenes,
+    };
 
     html! {
-        <Panorama _type={"equirectangular"} panorama={"https://pannellum.org/images/alma.jpg"} panorama_id={"panorama"} />
-        // <div ref={elem_ref} id={"panorama"}></div>
+        <Panorama {options} />
     }
 }

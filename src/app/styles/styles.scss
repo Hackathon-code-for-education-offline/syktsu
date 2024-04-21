@@ -54,13 +54,13 @@
 }
 
 [class*='icon-']:before{
-	display: inline-block;
    font-family: 'HeaderSymbols';
    font-style: normal;
    font-weight: normal;
    line-height: 1;
    -webkit-font-smoothing: antialiased;
-   -moz-osx-font-smoothing: grayscale
+   -moz-osx-font-smoothing: grayscale;
+   @extend %display_grid;
 }
 .icon-logo:before{content:'\0041';}
 .icon-menu:before{content:'\0042';}
@@ -186,13 +186,35 @@ small,
 
 .button {
     width: max-content;
-    border-radius: 0.75rem;
+    border-radius: 0.65rem;
     padding-inline: 1.25rem;
     grid-auto-flow: column;
     column-gap: 0.75rem;
+    transition: transform $fast-transition $default-timing-function;
+    @extend %user_select_none;
     @extend %pointer;
     @extend %display_grid;
     @extend %align_content_center;
+    @extend %relative;
+}
+
+.button::after {
+    border-radius: $radius;
+    background: $hover-color;
+    transition: opacity $default-transition $default-timing-function;
+    @extend %absolute_zero;
+    @extend %opacity_0;
+    @extend %pseudo_props;
+}
+
+@media screen and (hover:hover) {
+    .button:hover::after {
+        opacity: 1;
+    }
+}
+
+.button:active {
+    transform: scale(0.95);
 }
 
 .button.base {
@@ -210,6 +232,7 @@ html, body {
 }
 
 body {
+    -webkit-tap-highlight-color: transparent;
     @extend %overflow_hidden;
     @extend %display_grid;
 }
@@ -226,9 +249,11 @@ header {
 }
 
 .header__logo {
+    color: $accent-color;
     font-size: 5rem;
-    height: 4rem;
-    @extend %align_items_center;
+    height: 3rem;
+    @extend %pointer;
+    @extend %align_content_center;
     @extend %display_grid;
 }
 
@@ -242,6 +267,22 @@ nav {
     @extend %display_grid;
 }
 
+.input {
+    padding-inline: 1.5rem;
+    border-radius: $radius;
+    background: $primary-color;
+    @extend %display_grid;
+}
+
+.input__field {
+    outline: none;
+}
+
+.shadow-toggle {
+    
+}
+
 .login__form {
     @extend %display_grid;
 }
+

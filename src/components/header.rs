@@ -12,6 +12,7 @@ pub fn header(props: &HeaderProps) -> Html {
 
     html! {
         <header>
+            <input class={classes!("shadow-toggle")} id={"header-toggle"} />
             <span class={classes!("header__logo", "icon-logo")}></span>
 
             <Button with_icon={"icon-menu"} value={"Все вузы"} />
