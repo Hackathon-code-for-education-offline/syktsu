@@ -7,7 +7,7 @@ mod jwt;
 use app_interface::{LoginRequest, Response};
 use db::{UniversityRow, DB};
 use jsonwebtoken::{encode, EncodingKey, Header};
-use rocket::{data::FromData, http::CookieJar, serde::json::Json};
+use rocket::{data::FromData, http::{CookieJar, Status}, serde::json::Json};
 use serde::{Deserialize, Serialize};
 
 struct State {
@@ -28,7 +28,7 @@ async fn rocket() -> _ {
 
     rocket::build()
         .manage(state)
-        .mount("/", routes![university, university_add, display_all,])
+        .mount("/", routes![university, university_add, display_all, generate_token])
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,17 +36,12 @@ async fn rocket() -> _ {
 struct Claims {}
 
 #[post("/login", format = "application/json", data = "<user>")]
-fn generate_token(cookies: &CookieJar<'_>, user: LoginRequest<'_>) -> Response<()> {
-    // user.get_private
-    // let claims = claims.0;
+fn generate_token(cookies: &CookieJar<'_>, user: LoginRequest) -> Json<String> {
+    let header = Header::default();
+    let key = EncodingKey::from_secret("secret".as_ref());
+    let token = encode(&header, &user, &key).unwrap();
 
-    "sada".to_string()
-
-    // let header = Header::default();
-    // let key = EncodingKey::from_secret("secret".as_ref());
-    // let token = encode(&header, &claims, &key).unwrap();
-
-    // token
+    Json(token)
 }
 
 #[get("/university/add")]
