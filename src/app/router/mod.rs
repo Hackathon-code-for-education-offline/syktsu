@@ -5,6 +5,7 @@ use crate::{
     components::header::Header,
     pages::{
         home::Home,
+        login::Login,
         profile::{MyProfile, Profile},
         university::{Universities, University, UniversityMap},
     },
@@ -14,12 +15,14 @@ use gloo_utils::window;
 use reqwest::header::CONTENT_TYPE;
 use yew::prelude::*;
 use yew_hooks::{use_async_with_options, use_local_storage, UseAsyncHandle, UseAsyncOptions};
-use yew_router::prelude::*;
+use yew_router::{navigator, prelude::*};
 
 #[derive(Debug, Clone, PartialEq, Routable)]
 pub enum Route {
     #[at("/")]
     Home,
+    #[at("/login")]
+    Login,
     #[at("/profile")]
     ProfileRoot,
     #[at("/profile/:id")]
@@ -81,15 +84,10 @@ pub(crate) fn app() -> Html {
     // };
 
     // if let Some(data) = is_auth.data.clone() {
-    let is_auth = true;
 
     return html! {
         <BrowserRouter>
-            <Header {is_auth} />
-
-            <main>
-                <Switch<Route> render={switch} />
-            </main>
+            <Switch<Route> render={switch} />
         </BrowserRouter>
     };
     // }
@@ -109,14 +107,38 @@ pub(crate) fn app() -> Html {
 }
 
 fn switch(routes: Route) -> Html {
-    match routes {
-        Route::Home => html! { <Home /> },
-        Route::UniversityRoot => html! { <Universities /> },
-        Route::University { id } => html! { <University {id} /> },
-        Route::UniversityMap { id } => html! { <UniversityMap {id} /> },
-        Route::ProfileRoot => html! { <MyProfile /> },
-        Route::Profile { id } => html! { <Profile {id} /> },
+    html! {
+        <>
+            if Route::Login != routes {
+                <AppHeader />
+            }
 
-        Route::NotFound => html! { <h1>{ "404" }</h1> },
+            <main class={classes!(if Route::Login == routes {"login"} else {""})}>
+                {
+                    match routes {
+                        Route::Home => html! { <Home /> },
+                        Route::Login => html! { <Login /> },
+                        Route::UniversityRoot => html! { <Universities /> },
+                        Route::University { id } => html! { <University {id} /> },
+                        Route::UniversityMap { id } => html! { <UniversityMap {id} /> },
+                        Route::ProfileRoot => html! { <MyProfile /> },
+                        Route::Profile { id } => html! { <Profile {id} /> },
+
+                        Route::NotFound  => html! { <h1>{ "404" }</h1> },
+                    }
+                }
+            </main>
+        </>
+    }
+}
+
+#[function_component(AppHeader)]
+fn app_header() -> Html {
+    let navigator = use_navigator().unwrap();
+    let to_login_page = Callback::from(move |_e: MouseEvent| navigator.push(&Route::Login));
+    let is_auth = true;
+
+    html! {
+        <Header {is_auth} {to_login_page} />
     }
 }
