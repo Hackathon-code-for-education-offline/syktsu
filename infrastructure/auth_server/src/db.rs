@@ -1,3 +1,4 @@
+use rocket::http::Status;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use sqlx::{query, MySql, MySqlPool, Pool};
 
@@ -75,8 +76,8 @@ impl Roles {
         Self {pool: pool.clone()}
     }
 
-    async fn insert(pool: &Pool<MySql>) {
-        if let Err(e) = query(r#""#).execute(pool).await {
+    async fn insert(&self) {
+        if let Err(e) = query(r#""#).execute(&self.pool).await {
             println!("{:?}", e);
         };
     }
@@ -119,11 +120,12 @@ impl University {
         };
     }
 
-    pub async fn select_by_key(&self, key: &str) -> String {
-        let request = &format!("SELECT {} FROM University", key);
-        let row = sqlx::query_as::<_, UniversityRow>(request).fetch_one(&self.pool).await.unwrap();
-        
-        row.into_json()
+    pub async fn select_by_key(&self, key: &str) -> Result<String, Status> {
+        let request = &format!("SELECT * FROM University WHERE university_id = {}", key);
+        match sqlx::query_as::<_, UniversityRow>(request).fetch_one(&self.pool).await {
+            Ok(row) => Ok(row.into_json()),
+            Err(_) => Err(Status::InternalServerError),
+        }
     }
 
     pub async fn select_all(&self) -> String {
@@ -173,8 +175,8 @@ impl Users {
         Self {pool: pool.clone()}
     }
 
-    async fn insert(pool: &Pool<MySql>) {
-        if let Err(e) = query(r#""#).execute(pool).await {
+    pub async fn insert(&self, login: String, password: String) {
+        if let Err(e) = query(&format!("insert into users () values ()")).execute(&self.pool).await {
             println!("{:?}", e);
         };
     }

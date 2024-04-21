@@ -7,8 +7,9 @@ mod jwt;
 use app_interface::LoginRequest;
 use db::{UniversityRow, DB};
 use jsonwebtoken::{encode, EncodingKey};
-use rocket::{data::FromData, fairing::{Fairing, Info, Kind}, http::{CookieJar, Header, Status}, serde::json::Json, Request, Response};
+use rocket::{fairing::{Fairing, Info, Kind}, http::{Cookie, CookieJar, Header}, serde::json::Json, Request, Response};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 pub struct CORS;
 
@@ -47,22 +48,31 @@ async fn rocket() -> _ {
 
     rocket::build()
         .manage(state)
+        .mount("/", routes![university, university_add, display_all, generate_token, a])
         .attach(CORS)
-        .mount("/", routes![university, university_add, display_all, generate_token])
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct Claims {}
 
-#[post("/login", format = "application/json", data = "<user>")]
-fn generate_token(cookies: &CookieJar<'_>, user: LoginRequest) -> Status {
-    // let key = EncodingKey::from_secret("secret".as_ref());
-    // let token = encode(&header, &user, &key).unwrap();
-    let user = user.clone().password;
-    cookies.add_private(("session", user.clone()));
+#[get("/a")]
+fn a() {
 
-    Status::Ok
+}
+
+#[post("/login", data = "<user>")]
+fn generate_token(state: &rocket::State<State>, cookies: &CookieJar<'_>, user: Json<LoginRequest>) -> String {
+    let user = user.0;
+    println!("{:?}", user.clone());
+
+    // // state.db.tables.users.insert(user.clone().username, user.clone().password).await;
+
+    let header = jsonwebtoken::Header::default();
+    let key = EncodingKey::from_secret("secret".as_ref());
+    let token = encode(&header, &user.clone(), &key).unwrap();
+    // let v = serde_json::to_string(&token).unwrap();
+    token
 }
 
 #[get("/university/add")]
@@ -73,10 +83,14 @@ async fn university_add(state: &rocket::State<State>) {
 
 #[get("/university/<id>")]
 async fn university(state: &rocket::State<State>, id: String) -> String {
-    state.db.tables.university.select_by_key(&id).await
+    match state.db.tables.university.select_by_key(&id).await {
+        Ok(univer_info) => univer_info,
+        Err(e) => e.to_string(),
+    }
 }
 
 #[get("/university/display")]
 async fn display_all(state: &rocket::State<State>) -> String {
     state.db.tables.university.select_all().await
 }
+

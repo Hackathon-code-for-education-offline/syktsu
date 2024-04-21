@@ -4,8 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-serde = { workspace = true }
-serde_json = { workspace = true }
+# serde = { workspace = true }
+# serde_json = { workspace = true }
+serde = { version = "*"}
+serde_json = { version = "*" }
 rocket = { version = "0.5", features = ["secrets", "json"] }
 app_interface = { path = "../../interface", features = ["backend"] }
 sqlx = { version = "0.7.4", features = ["mysql"] }
