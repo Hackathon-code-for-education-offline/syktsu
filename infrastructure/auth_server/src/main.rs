@@ -1,9 +1,11 @@
 #[macro_use] extern crate rocket;
 
 mod db;
+mod jwt;
 
-use db::{User, DB};
-
+use db::DB;
+use rocket::serde::json::Json;
+use serde::Deserialize;
 struct State {
     
 }
@@ -11,26 +13,29 @@ struct State {
 
 impl State {
     pub async fn init() {
-        let db = DB::init().await;
-
-        let table_name = "playground";
-    
-        db.create(table_name).await;
-        db.insert(table_name, User::new(1, format!("Stiven"))).await;
-        db.show_table(table_name).await;
+        let _ = DB::init().await;
     }
 }
+
 
 #[launch]
 async fn rocket() -> _ {
     let state = State::init().await;
 
     rocket::build()
-    .manage(state)
-    .mount("/", routes![index])
+        .manage(state)
+        .mount("/", routes![
+            // read
+        ])
 }
 
-#[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct TokenInData {
+
+}
+
+#[post("/gen_token", data = "<token_data>")]
+fn generate_token(token_data: Json<TokenInData>) {
+    
 }
