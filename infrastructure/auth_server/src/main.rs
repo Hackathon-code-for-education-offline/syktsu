@@ -4,11 +4,30 @@ extern crate rocket;
 mod db;
 mod jwt;
 
-use app_interface::{LoginRequest, Response};
+use app_interface::LoginRequest;
 use db::{UniversityRow, DB};
-use jsonwebtoken::{encode, EncodingKey, Header};
-use rocket::{data::FromData, http::{CookieJar, Status}, serde::json::Json};
+use jsonwebtoken::{encode, EncodingKey};
+use rocket::{data::FromData, fairing::{Fairing, Info, Kind}, http::{CookieJar, Header, Status}, serde::json::Json, Request, Response};
 use serde::{Deserialize, Serialize};
+
+pub struct CORS;
+
+#[rocket::async_trait]
+impl Fairing for CORS {
+    fn info(&self) -> Info {
+        Info {
+            name: "Add CORS headers to responses",
+            kind: Kind::Response
+        }
+    }
+
+    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
+        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
+    }
+}
 
 struct State {
     db: DB,
@@ -28,6 +47,7 @@ async fn rocket() -> _ {
 
     rocket::build()
         .manage(state)
+        .attach(CORS)
         .mount("/", routes![university, university_add, display_all, generate_token])
 }
 
@@ -36,12 +56,13 @@ async fn rocket() -> _ {
 struct Claims {}
 
 #[post("/login", format = "application/json", data = "<user>")]
-fn generate_token(cookies: &CookieJar<'_>, user: LoginRequest) -> Json<String> {
-    let header = Header::default();
-    let key = EncodingKey::from_secret("secret".as_ref());
-    let token = encode(&header, &user, &key).unwrap();
+fn generate_token(cookies: &CookieJar<'_>, user: LoginRequest) -> Status {
+    // let key = EncodingKey::from_secret("secret".as_ref());
+    // let token = encode(&header, &user, &key).unwrap();
+    let user = user.clone().password;
+    cookies.add_private(("session", user.clone()));
 
-    Json(token)
+    Status::Ok
 }
 
 #[get("/university/add")]
